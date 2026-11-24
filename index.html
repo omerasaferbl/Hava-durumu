@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>İstanbul Hava Durumu</title>
+	<style>
+		:root {
+			--page: #f5f7ef;
+			--ink: #203439;
+			--muted: #647779;
+			--accent: #e88c38;
+			--accent-dark: #9c4e16;
+			--soft: #fff0cf;
+			--line: #e4e9dc;
+		}
+		body[data-theme="ocean"] { --page: #eef8f7; --accent: #4a9da7; --accent-dark: #21616b; --soft: #d7eff0; --line: #d9eae8; }
+		body[data-theme="berry"] { --page: #fbf3f5; --accent: #dc7892; --accent-dark: #99445a; --soft: #f8dfe6; --line: #f0dfe4; }
+		* { box-sizing: border-box; }
+		body { margin: 0; padding: 22px 16px 40px; background: var(--page); color: var(--ink); font-family: "Trebuchet MS", Arial, sans-serif; transition: background .2s; }
+		main { width: min(820px, 100%); margin: auto; }
+		header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+		.logo { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 15px; background: var(--soft); font-size: 27px; }
+		h1 { margin: 0; font-size: 27px; }
+		.tagline { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+		.theme-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-bottom: 16px; }
+		.theme-picker p { margin: 0 5px 0 0; font-size: 14px; font-weight: bold; }
+		.theme-button { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border: 2px solid transparent; border-radius: 20px; background: white; color: var(--ink); cursor: pointer; }
+		.theme-button[aria-pressed="true"] { border-color: var(--accent); }
+		.swatch { width: 15px; height: 15px; border-radius: 50%; background: var(--swatch); }
+		.weather { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; min-height: 260px; overflow: hidden; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: white; }
+		.weather::before { position: absolute; z-index: 0; inset: 0 0 0 48%; background: linear-gradient(90deg, white, rgba(255,255,255,.1)), url("https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1000&q=80") center / cover; content: ""; }
+		.current, .details { position: relative; z-index: 1; }
+		.current { align-self: center; padding: 18px; border-radius: 14px; background: rgba(255,255,255,.9); }
+		.city { margin: 0; color: var(--muted); font-size: 15px; }
+		.temperature-row { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+		.temperature { font-size: 68px; font-weight: bold; line-height: 1; }
+		.weather-icon { font-size: 43px; }
+		.condition { margin: 0; font-size: 18px; font-weight: bold; }
+		.feels { margin: 9px 0 0; color: var(--muted); font-size: 14px; }
+		.details { display: grid; align-content: end; grid-template-columns: 1fr 1fr; gap: 9px; }
+		.detail { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.94); font-size: 13px; }
+		.detail strong { display: block; margin-top: 6px; font-size: 16px; }
+		h2 { margin: 27px 0 12px; font-size: 20px; }
+		.forecast { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+		.day { padding: 14px 6px; border: 1px solid var(--line); border-radius: 13px; background: white; text-align: center; }
+		.day-name { font-size: 13px; font-weight: bold; }
+		.day-icon { margin: 8px 0; font-size: 27px; }
+		.day-temp { margin: 0; font-size: 13px; }
+		.game { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); text-align: center; }
+		.game h2 { margin: 0 0 6px; }
+		.game p { margin: 6px 0 13px; color: var(--muted); }
+		.game-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+		.game button { min-height: 44px; padding: 9px 15px; border: 0; border-radius: 12px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; }
+		.game button:disabled { opacity: .5; cursor: not-allowed; }
+		.game #catch-cloud { background: white; color: var(--ink); font-size: 21px; }
+		#game-message, #message { min-height: 20px; margin: 12px 0 0; color: var(--accent-dark); font-weight: bold; }
+		footer { margin-top: 20px; color: var(--muted); font-size: 12px; text-align: center; }
+		@media (max-width: 600px) {
+			body { padding: 18px 13px 30px; }
+			h1 { font-size: 23px; }
+			.weather { grid-template-columns: 1fr; padding: 14px; }
+			.weather::before { inset: 0; opacity: .3; }
+			.current { width: fit-content; }
+			.details { grid-template-columns: 1fr 1fr; }
+			.forecast { grid-template-columns: repeat(2, 1fr); }
+		}
+	</style>
+</head>
+<body data-theme="sun">
+	<main>
+		<header>
+			<div class="logo" aria-hidden="true">🌤️</div>
+			<div>
+				<h1>Hava Kaşifleri</h1>
+				<p class="tagline">Gökyüzünde bugün neler oluyor?</p>
+			</div>
+		</header>
+
+		<section class="theme-picker" aria-label="Renk temasını seç">
+			<p>Rengini seç:</p>
+			<button class="theme-button" data-theme="sun" aria-pressed="true"><span class="swatch" style="--swatch:#efa23f"></span>Güneş</button>
+			<button class="theme-button" data-theme="ocean" aria-pressed="false"><span class="swatch" style="--swatch:#4a9da7"></span>Deniz</button>
+			<button class="theme-button" data-theme="berry" aria-pressed="false"><span class="swatch" style="--swatch:#dc7892"></span>Çilek</button>
+		</section>
+
+		<section class="weather" aria-label="İstanbul hava durumu">
+			<div class="current">
+				<p class="city">📍 İstanbul · <span id="date">Bugün</span></p>
+				<div class="temperature-row"><span class="temperature" id="temperature">--°</span><span class="weather-icon" id="weather-icon">🌤️</span></div>
+				<p class="condition" id="condition">Hava durumu yükleniyor...</p>
+				<p class="feels">Hissedilen: <strong id="feels">--°</strong></p>
+			</div>
+			<div class="details">
+				<div class="detail">💧 Nem<strong id="humidity">--%</strong></div>
+				<div class="detail">🍃 Rüzgâr<strong id="wind">-- km/sa</strong></div>
+				<div class="detail">☔ Yağış<strong id="rain">-- mm</strong></div>
+				<div class="detail">🌡️ En yüksek<strong id="high">--°</strong></div>
+			</div>
+		</section>
+
+		<h2>📅 Önümüzdeki 5 gün</h2>
+		<section class="forecast" id="forecast" aria-label="Beş günlük tahmin"></section>
+
+		<section class="game">
+			<h2>☁️ Bulut yakalama oyunu</h2>
+			<p>10 saniyede kaç bulut yakalayabilirsin?</p>
+			<div class="game-buttons">
+				<button id="start-game">Oyuna başla</button>
+				<button id="catch-cloud" disabled aria-label="Bulutu yakala">☁️ Yakala!</button>
+			</div>
+			<p id="game-message" aria-live="polite">Hazır olunca başla düğmesine bas!</p>
+		</section>
+
+		<p id="message" role="status"></p>
+		<footer>Hava verileri Open-Meteo’dan gelir. Oynamak için ekrana dokun!</footer>
+	</main>
+
+	<script>
+		const api = "https://api.open-meteo.com/v1/forecast?latitude=41.01&longitude=28.98&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5";
+		const weatherTypes = {
+			0: ["Güneşli", "☀️"], 1: ["Az bulutlu", "🌤️"], 2: ["Parçalı bulutlu", "⛅"],
+			3: ["Bulutlu", "☁️"], 45: ["Sisli", "🌫️"], 51: ["Çisenti", "🌦️"],
+			61: ["Yağmurlu", "🌧️"], 63: ["Yağmurlu", "🌧️"], 65: ["Kuvvetli yağmur", "🌧️"],
+			71: ["Kar yağışlı", "🌨️"], 73: ["Kar yağışlı", "🌨️"], 80: ["Sağanak", "🌦️"],
+			95: ["Gök gürültülü", "⛈️"]
+		};
+
+		document.querySelectorAll(".theme-button").forEach(button => {
+			button.addEventListener("click", () => {
+				document.body.dataset.theme = button.dataset.theme;
+				document.querySelectorAll(".theme-button").forEach(item => item.setAttribute("aria-pressed", item === button));
+			});
+		});
+
+		fetch(api)
+			.then(response => response.json())
+			.then(data => {
+				const now = data.current;
+				const today = weatherTypes[now.weather_code] || ["Değişken", "🌤️"];
+				document.getElementById("temperature").textContent = Math.round(now.temperature_2m) + "°";
+				document.getElementById("condition").textContent = today[0];
+				document.getElementById("weather-icon").textContent = today[1];
+				document.getElementById("feels").textContent = Math.round(now.apparent_temperature) + "°";
+				document.getElementById("humidity").textContent = now.relative_humidity_2m + "%";
+				document.getElementById("wind").textContent = Math.round(now.wind_speed_10m) + " km/sa";
+				document.getElementById("rain").textContent = now.precipitation + " mm";
+				document.getElementById("high").textContent = Math.round(data.daily.temperature_2m_max[0]) + "°";
+				document.getElementById("date").textContent = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
+
+				data.daily.time.forEach((date, index) => {
+					const dayName = index === 0 ? "Bugün" : new Date(date + "T12:00:00").toLocaleDateString("tr-TR", { weekday: "long" });
+					const weather = weatherTypes[data.daily.weather_code[index]] || ["Değişken", "🌤️"];
+					document.getElementById("forecast").innerHTML += `<article class="day"><div class="day-name">${dayName}</div><div class="day-icon">${weather[1]}</div><p class="day-temp">${Math.round(data.daily.temperature_2m_max[index])}° / ${Math.round(data.daily.temperature_2m_min[index])}°</p></article>`;
+				});
+			})
+			.catch(() => document.getElementById("message").textContent = "Hava bilgisi gelmedi. İnternet bağlantını kontrol et!");
+
+		let score = 0;
+		let seconds = 10;
+		let timer;
+		const startButton = document.getElementById("start-game");
+		const cloudButton = document.getElementById("catch-cloud");
+		const gameMessage = document.getElementById("game-message");
+
+		startButton.addEventListener("click", () => {
+			score = 0;
+			seconds = 10;
+			cloudButton.disabled = false;
+			startButton.disabled = true;
+			gameMessage.textContent = "Puan: 0 · Süre: 10 saniye";
+			clearInterval(timer);
+			timer = setInterval(() => {
+				seconds--;
+				gameMessage.textContent = `Puan: ${score} · Süre: ${seconds} saniye`;
+				if (seconds === 0) {
+					clearInterval(timer);
+					cloudButton.disabled = true;
+					startButton.disabled = false;
+					gameMessage.textContent = `Süre bitti! ${score} bulut yakaladın. Tekrar oynayalım mı?`;
+				}
+			}, 1000);
+		});
+
+		cloudButton.addEventListener("click", () => {
+			score++;
+			gameMessage.textContent = `Harika! Puan: ${score} · Süre: ${seconds} saniye`;
+		});
+	</script>
+</body>
