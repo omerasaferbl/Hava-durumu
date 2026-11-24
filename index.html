@@ -17,7 +17,7 @@
 		body[data-theme="ocean"] { --page: #eef8f7; --accent: #4a9da7; --accent-dark: #21616b; --soft: #d7eff0; --line: #d9eae8; }
 		body[data-theme="berry"] { --page: #fbf3f5; --accent: #dc7892; --accent-dark: #99445a; --soft: #f8dfe6; --line: #f0dfe4; }
 		* { box-sizing: border-box; }
-		body { margin: 0; padding: 22px 16px 40px; background: var(--page); color: var(--ink); font-family: "Trebuchet MS", Arial, sans-serif; transition: background .2s; }
+		body { margin: 0; padding: 22px 16px 40px; background: radial-gradient(circle at 8% 12%, rgba(255,214,129,.45), transparent 190px), radial-gradient(circle at 92% 38%, rgba(129,205,214,.32), transparent 240px), var(--page); color: var(--ink); font-family: "Trebuchet MS", Arial, sans-serif; transition: background .2s; }
 		main { width: min(820px, 100%); margin: auto; }
 		header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
 		.logo { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 15px; background: var(--soft); font-size: 27px; }
@@ -28,12 +28,10 @@
 		.theme-button { display: flex; align-items: center; gap: 7px; padding: 8px 11px; border: 2px solid transparent; border-radius: 20px; background: white; color: var(--ink); cursor: pointer; }
 		.theme-button[aria-pressed="true"] { border-color: var(--accent); }
 		.swatch { width: 15px; height: 15px; border-radius: 50%; background: var(--swatch); }
-		.weather { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; min-height: 260px; overflow: hidden; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: white; }
-		.weather::before { position: absolute; z-index: 0; inset: 0 0 0 48%; background: linear-gradient(90deg, white, rgba(255,255,255,.1)), url("https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1000&q=80") center / cover; content: ""; }
-		.current, .details { position: relative; z-index: 1; }
-		.sky-catcher { position: absolute; z-index: 2; top: 24px; right: 17%; display: grid; width: 76px; height: 76px; place-items: center; padding: 0; border: 0; border-radius: 50%; background: transparent; font-size: 58px; cursor: pointer; filter: drop-shadow(0 3px 4px rgba(32,52,57,.2)); transition: transform .2s; }
-		.sky-catcher:hover { transform: scale(1.15); }
-		.sky-catcher[hidden] { display: none; }
+		.weather { position: relative; display: grid; grid-template-columns: 1fr 1fr; min-height: 420px; overflow: hidden; padding: 22px; border: 1px solid var(--line); border-radius: 22px; background: white; box-shadow: 0 12px 30px rgba(32,52,57,.1); }
+		.weather::before { position: absolute; z-index: 0; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,.96) 0%, rgba(255,255,255,.86) 43%, rgba(221,244,249,.18) 100%), url("https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1500&q=85") center / cover; content: ""; }
+		.weather-info { position: relative; z-index: 3; display: flex; width: 100%; flex-direction: column; justify-content: space-between; gap: 14px; pointer-events: none; }
+		.current, .details { position: relative; z-index: 3; pointer-events: auto; }
 		.current { align-self: center; padding: 18px; border-radius: 14px; background: rgba(255,255,255,.9); }
 		.city { margin: 0; color: var(--muted); font-size: 15px; }
 		.temperature-row { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
@@ -44,26 +42,35 @@
 		.details { display: grid; align-content: end; grid-template-columns: 1fr 1fr; gap: 9px; }
 		.detail { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.94); font-size: 13px; }
 		.detail strong { display: block; margin-top: 6px; font-size: 16px; }
+		.sky-scene { position: absolute; z-index: 2; inset: 0 0 0 50%; overflow: hidden; pointer-events: none; }
+		.falling-item { position: absolute; top: -64px; display: grid; width: 60px; height: 60px; place-items: center; padding: 0; border: 1px solid rgba(255,255,255,.8); border-radius: 50%; background: rgba(255,255,255,.78); box-shadow: 0 5px 16px rgba(32,52,57,.18); font-size: 38px; cursor: pointer; pointer-events: auto; animation: weather-fall var(--fall-duration) linear forwards; }
+		.falling-item:hover { transform: scale(1.12); }
+		@keyframes weather-fall { to { top: calc(100% + 64px); transform: rotate(25deg); opacity: .35; } }
 		h2 { margin: 27px 0 12px; font-size: 20px; }
 		.forecast { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 		.day { padding: 14px 6px; border: 1px solid var(--line); border-radius: 13px; background: white; text-align: center; }
 		.day-name { font-size: 13px; font-weight: bold; }
 		.day-icon { margin: 8px 0; font-size: 27px; }
 		.day-temp { margin: 0; font-size: 13px; }
-		.game { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); text-align: center; }
+		.game { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(135deg, var(--soft), white); box-shadow: 0 8px 20px rgba(32,52,57,.06); text-align: center; }
 		.game h2 { margin: 0 0 6px; }
 		.game p { margin: 6px 0 13px; color: var(--muted); }
+		.game-stats { display: flex; justify-content: center; gap: 20px; margin: 14px 0; font-weight: bold; }
+		.game button { min-height: 46px; padding: 10px 20px; border: 0; border-radius: 14px; background: var(--accent); color: white; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(156,78,22,.2); }
+		.game button:disabled { opacity: .55; cursor: not-allowed; }
 		#game-message, #message { min-height: 20px; margin: 12px 0 0; color: var(--accent-dark); font-weight: bold; }
 		footer { margin-top: 20px; color: var(--muted); font-size: 12px; text-align: center; }
 		@media (max-width: 600px) {
 			body { padding: 18px 13px 30px; }
 			h1 { font-size: 23px; }
-			.weather { grid-template-columns: 1fr; padding: 14px; }
-			.weather::before { inset: 0; opacity: .3; }
-			.current { width: fit-content; }
-			.sky-catcher { top: 14px; right: 14px; }
+			.weather { min-height: 540px; grid-template-columns: 1fr; padding: 14px; }
+			.weather::before { background-image: linear-gradient(180deg, rgba(255,255,255,.93) 0%, rgba(255,255,255,.84) 48%, rgba(221,244,249,.12) 100%), url("https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1000&q=85"); }
+			.weather-info { min-height: 100%; }
+			.current { align-self: start; width: fit-content; }
+			.sky-scene { inset: 52% 0 0; }
 			.details { grid-template-columns: 1fr 1fr; }
 			.forecast { grid-template-columns: repeat(2, 1fr); }
+			.game-stats { gap: 12px; font-size: 14px; }
 		}
 	</style>
 </head>
@@ -85,19 +92,21 @@
 		</section>
 
 		<section class="weather" aria-label="İstanbul hava durumu">
-			<button class="sky-catcher" id="sky-catcher" aria-label="Gökyüzündeki nesneyi yakala" title="Yakalamak için tıkla" hidden>☀️</button>
-			<div class="current">
-				<p class="city">📍 İstanbul · <span id="date">Bugün</span></p>
-				<div class="temperature-row"><span class="temperature" id="temperature">--°</span><span class="weather-icon" id="weather-icon">🌤️</span></div>
-				<p class="condition" id="condition">Hava durumu yükleniyor...</p>
-				<p class="feels">Hissedilen: <strong id="feels">--°</strong></p>
+			<div class="weather-info">
+				<div class="current">
+					<p class="city">📍 İstanbul · <span id="date">Bugün</span></p>
+					<div class="temperature-row"><span class="temperature" id="temperature">--°</span><span class="weather-icon" id="weather-icon">🌤️</span></div>
+					<p class="condition" id="condition">Hava durumu yükleniyor...</p>
+					<p class="feels">Hissedilen: <strong id="feels">--°</strong></p>
+				</div>
+				<div class="details">
+					<div class="detail">💧 Nem<strong id="humidity">--%</strong></div>
+					<div class="detail">🍃 Rüzgâr<strong id="wind">-- km/sa</strong></div>
+					<div class="detail">☔ Yağış<strong id="rain">-- mm</strong></div>
+					<div class="detail">🌡️ En yüksek<strong id="high">--°</strong></div>
+				</div>
 			</div>
-			<div class="details">
-				<div class="detail">💧 Nem<strong id="humidity">--%</strong></div>
-				<div class="detail">🍃 Rüzgâr<strong id="wind">-- km/sa</strong></div>
-				<div class="detail">☔ Yağış<strong id="rain">-- mm</strong></div>
-				<div class="detail">🌡️ En yüksek<strong id="high">--°</strong></div>
-			</div>
+			<div class="sky-scene" id="sky-scene" aria-label="Yakalama oyun alanı"></div>
 		</section>
 
 		<h2>📅 Önümüzdeki 5 gün</h2>
@@ -105,8 +114,10 @@
 
 		<section class="game">
 			<h2>🌤️ Gökyüzünü yakala!</h2>
-			<p>Hava durumuna göre gökyüzünde beliren güneşe, buluta veya yağmur damlasına tıkla.</p>
-			<p id="game-message" aria-live="polite">Gökyüzündeki nesneye dokunarak yakalayabilirsin!</p>
+			<p>20 saniyede, hava durumuna göre düşen nesneleri yakala! Her saniye 5–10 nesne gelir.</p>
+			<div class="game-stats"><span id="game-score">⭐ Puan: 0</span><span id="game-time">⏱️ Süre: 20 sn</span></div>
+			<button id="start-game" disabled>Oyuna başla</button>
+			<p id="game-message" aria-live="polite">Hava bilgisi gelince oyuna başlayabilirsin.</p>
 		</section>
 
 		<p id="message" role="status"></p>
@@ -130,15 +141,22 @@
 			});
 		});
 
-		const skyCatcher = document.getElementById("sky-catcher");
+		const skyScene = document.getElementById("sky-scene");
 		const gameMessage = document.getElementById("game-message");
+		const gameScore = document.getElementById("game-score");
+		const gameTime = document.getElementById("game-time");
+		const startButton = document.getElementById("start-game");
 		let caughtCount = 0;
 		let skyObject = null;
-		let skyObjectCaught = false;
+		let seconds = 20;
+		let gameActive = false;
+		let spawnTimer;
+		let gameTimer;
 
 		function getSkyObject(weatherCode) {
 			if (weatherCode === 0) return { type: "sun", name: "Güneşi", icon: "☀️" };
-			if ([1, 2, 3].includes(weatherCode)) return { type: "cloud", name: "Bulutu", icon: "☁️" };
+			if (weatherCode === 1) return { type: "sun", name: "Güneşi", icon: "🌤️" };
+			if ([2, 3].includes(weatherCode)) return { type: "cloud", name: "Bulutu", icon: "☁️" };
 			if ([45, 48].includes(weatherCode)) return { type: "fog", name: "Sisi", icon: "🌫️" };
 			if ([71, 73, 75, 77, 85, 86].includes(weatherCode)) return { type: "snow", name: "Kar tanesini", icon: "❄️" };
 			if ([95, 96, 99].includes(weatherCode)) return { type: "storm", name: "Şimşeği", icon: "⚡" };
@@ -153,12 +171,8 @@
 				if (!data.current || !data.daily) throw new Error("Hava durumu verisi eksik.");
 				const now = data.current;
 				const today = weatherTypes[now.weather_code] || ["Değişken", "🌤️"];
-				const nextSkyObject = getSkyObject(now.weather_code);
-				if (skyObject?.type !== nextSkyObject.type) skyObjectCaught = false;
-				skyObject = nextSkyObject;
-				skyCatcher.textContent = skyObject.icon;
-				skyCatcher.setAttribute("aria-label", `${skyObject.name} yakala`);
-				skyCatcher.hidden = skyObjectCaught;
+				skyObject = getSkyObject(now.weather_code);
+				startButton.disabled = false;
 				document.getElementById("temperature").textContent = Math.round(now.temperature_2m) + "°";
 				document.getElementById("condition").textContent = today[0];
 				document.getElementById("weather-icon").textContent = today[1];
@@ -182,12 +196,52 @@
 			}
 		}
 
-		skyCatcher.addEventListener("click", () => {
-			if (skyObjectCaught || !skyObject) return;
-			skyObjectCaught = true;
-			caughtCount++;
-			skyCatcher.hidden = true;
-			gameMessage.textContent = `Harika! ${skyObject.name} yakaladın. Toplam: ${caughtCount}`;
+		function spawnWeatherItem() {
+			if (!gameActive || !skyObject) return;
+			const item = document.createElement("button");
+			const fallDuration = 1.7 + Math.random() * 1.3;
+			item.className = "falling-item";
+			item.textContent = skyObject.icon;
+			item.setAttribute("aria-label", `${skyObject.name} yakala`);
+			item.style.left = `${Math.random() * 78 + 11}%`;
+			item.style.setProperty("--fall-duration", `${fallDuration}s`);
+			item.addEventListener("click", () => {
+				if (!gameActive) return;
+				caughtCount++;
+				gameScore.textContent = `⭐ Puan: ${caughtCount}`;
+				item.remove();
+			}, { once: true });
+			item.addEventListener("animationend", () => item.remove(), { once: true });
+			skyScene.append(item);
+			spawnTimer = setTimeout(spawnWeatherItem, 100 + Math.random() * 100);
+		}
+
+		function finishGame() {
+			gameActive = false;
+			clearTimeout(spawnTimer);
+			clearInterval(gameTimer);
+			skyScene.replaceChildren();
+			startButton.disabled = false;
+			startButton.textContent = "Tekrar oyna";
+			gameMessage.textContent = `Süre bitti! ${caughtCount} nesne yakaladın.`;
+		}
+
+		startButton.addEventListener("click", () => {
+			if (!skyObject || gameActive) return;
+			caughtCount = 0;
+			seconds = 20;
+			gameActive = true;
+			startButton.disabled = true;
+			startButton.textContent = "Oyun başladı!";
+			gameScore.textContent = "⭐ Puan: 0";
+			gameTime.textContent = "⏱️ Süre: 20 sn";
+			gameMessage.textContent = "Düşen nesnelere tıklayarak yakala!";
+			spawnWeatherItem();
+			gameTimer = setInterval(() => {
+				seconds--;
+				gameTime.textContent = `⏱️ Süre: ${seconds} sn`;
+				if (seconds <= 0) finishGame();
+			}, 1000);
 		});
 
 		updateWeather();
